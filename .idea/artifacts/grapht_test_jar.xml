@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="grapht_test:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/grapht_test_jar</output-path>
+    <root id="archive" name="grapht_test.jar">
+      <element id="module-output" name="grapht_test" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-core/1.5.1/jgrapht-core-1.5.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jheaps/jheaps/0.13/jheaps-0.13.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
