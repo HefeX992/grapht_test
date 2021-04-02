@@ -16,11 +16,14 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
 
 public class MainTest {
+
+    private static int SIZE = 0;
 
     public static void main(String[] args) throws IOException {
 
@@ -34,11 +37,10 @@ public class MainTest {
 
         // Reading data using readLine
         String input = reader.readLine();
-        int SIZE = Integer.parseInt(input);
+        SIZE = Integer.parseInt(input);
 
 
-
-
+        long startTime = System.nanoTime();
 
         Supplier<Integer> vSupplier = new Supplier<Integer>() {
 
@@ -50,69 +52,111 @@ public class MainTest {
             }
         };
 
-        Supplier<Integer> vSupplier2 = new Supplier<Integer>() {
-
-            private int id = 0;
-
-            @Override
-            public Integer get() {
-                return id++;
-            }
-        };
+//        Supplier<Integer> vSupplier2 = new Supplier<Integer>() {
+//
+//            private int id = 0;
+//
+//            @Override
+//            public Integer get() {
+//                return id++;
+//            }
+//        };
 
 
         // weight = cost of the edge
         SimpleDirectedWeightedGraph exGraph =
                 new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(vSupplier, SupplierUtil.createDefaultWeightedEdgeSupplier());
         // weight = 1 / cost of the edge
-        SimpleDirectedWeightedGraph exGraph2 =
-                new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(vSupplier2, SupplierUtil.createDefaultWeightedEdgeSupplier());
+//        SimpleDirectedWeightedGraph exGraph2 =
+//                new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(vSupplier2, SupplierUtil.createDefaultWeightedEdgeSupplier());
 
 
         EmptyGraphGenerator<Integer, DefaultWeightedEdge> gen = new EmptyGraphGenerator<>(SIZE);
-        EmptyGraphGenerator<Integer, DefaultWeightedEdge> gen2 = new EmptyGraphGenerator<>(SIZE);
+//        EmptyGraphGenerator<Integer, DefaultWeightedEdge> gen2 = new EmptyGraphGenerator<>(SIZE);
 
         gen.generateGraph(exGraph);
-        gen2.generateGraph(exGraph2);
+//        gen2.generateGraph(exGraph2);
 
         ArrayList<Integer> l1 = new ArrayList<>();
         ArrayList<Integer> l2 = new ArrayList<>();
 
+
+        int counter = 0;
         Random rand = new Random();
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (rand.nextBoolean() && i !=j) {
+                if (rand.nextInt(99) < 10 && i != j) {
                     exGraph.addEdge(i, j);
-                    exGraph2.addEdge(i,j);
+//                    exGraph2.addEdge(i,j);
                     l1.add(i);
                     l2.add(j);
-                    double d = Math.round(rand.nextDouble()*100)+1;
-                    exGraph.setEdgeWeight(i,j,d);
-                    exGraph2.setEdgeWeight(i,j,1/d);
-                    System.out.println("S -- Weight from " +i+ " To "+ j +" is = "+ d);
-                    System.out.println("R -- Weight from " +i+ " To "+ j +" is = "+ 1/d);
+                    double d = Math.round(rand.nextDouble() * 100) + 1;
+                    exGraph.setEdgeWeight(i, j, d);
+
+                    counter++;
+
+//                    exGraph2.setEdgeWeight(i,j,1/d);
+//                    System.out.println("S -- Weight from " +i+ " To "+ j +" is = "+ d);
+//                    System.out.println("R -- Weight from " +i+ " To "+ j +" is = "+ 1/d);
                 }
+
             }
+            System.out.println("Degree of vertice " + i + " " + counter / SIZE);
+            //counter = 0;
         }
 
+
         DijkstraShortestPath<Integer, DefaultWeightedEdge> alg = new DijkstraShortestPath<>(exGraph);
-        DijkstraShortestPath<Integer,DefaultWeightedEdge> alg2 = new DijkstraShortestPath<>(exGraph2);
+//        DijkstraShortestPath<Integer,DefaultWeightedEdge> alg2 = new DijkstraShortestPath<>(exGraph2);
 
-        double d = alg.getPathWeight(0,SIZE-1);
-        GraphPath gp = alg.getPath(0,SIZE-1);
+        double d = alg.getPathWeight(0, SIZE - 1);
+        GraphPath gp = alg.getPath(0, SIZE - 1);
 
-        double dd = alg2.getPathWeight(0, SIZE-1);
-        GraphPath gp2 = alg2.getPath(0, SIZE-1);
+//        double dd = alg2.getPathWeight(0, SIZE-1);
+//        GraphPath gp2 = alg2.getPath(0, SIZE-1);
 
 
         System.out.println(gp.getVertexList().toString());
         System.out.println("Simple shortest path weight = " + d);
 
-        System.out.println(gp2.getVertexList().toString());
-        System.out.println("reciprocal shortest path weight = " + dd);
+//        System.out.println(gp2.getVertexList().toString());
+//        System.out.println("reciprocal shortest path weight = " + dd);
+
+        System.out.println("Simple edgelist " + gp.getEdgeList().toString());
+//        System.out.println("Reciprocal edgelist " + gp2.getEdgeList().toString());
 
 
 
+
+//      Fill up capacity
+        while (gp != null) {
+
+            System.out.println("------------------------------------------------------------------");
+            gp = alg.getPath(0, SIZE - 1);
+            d = alg.getPathWeight(0, SIZE - 1);
+
+            if (gp == null)
+                break;
+
+
+            for (int i = 0; i < gp.getVertexList().size() - 1; i++) {
+                double weightD = exGraph.getEdgeWeight(exGraph.getEdge(gp.getVertexList().get(i), gp.getVertexList().get(i + 1)));
+                if (weightD > 50.0) {
+                    exGraph.removeEdge(exGraph.getEdge(gp.getVertexList().get(i), gp.getVertexList().get(i + 1)));
+                } else {
+                    exGraph.setEdgeWeight(exGraph.getEdge(gp.getVertexList().get(i), gp.getVertexList().get(i + 1)), weightD + 1);
+                }
+            }
+
+
+
+
+            System.out.println(gp.getVertexList().toString());
+            System.out.println("Simple shortest path weight = " + d);
+
+
+
+        }
 
 
 //        Iterator<Integer> iter = new DepthFirstIterator<>(exGraph);
@@ -226,7 +270,7 @@ public class MainTest {
 //        }
 //
 
-        //Generate graph
+            //Generate graph
 //        final int SIZE = 100;
 //
 //        Supplier<String> vSupplier = new Supplier<String>() {
@@ -259,5 +303,9 @@ public class MainTest {
 //
 //        }
 
+        long stopTime = System.nanoTime();
+        System.out.println((stopTime - startTime) / 1000000000);
+
+        }
+
     }
-}
